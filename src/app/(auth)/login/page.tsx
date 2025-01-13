@@ -18,7 +18,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     setError('')
     e.preventDefault()
-    const supabase = await createClient();
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -37,17 +37,17 @@ export default function LoginPage() {
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>Login</CardTitle>
-          {error && 
-          (<CardDescription className='text-destructive'>{error}</CardDescription>) }
+          {error &&
+            (<CardDescription className='text-destructive'>{error}</CardDescription>)}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
+                <Input
+                  id="email"
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -55,8 +55,8 @@ export default function LoginPage() {
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
+                <Input
+                  id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

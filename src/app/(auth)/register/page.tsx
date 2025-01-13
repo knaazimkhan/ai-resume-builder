@@ -18,7 +18,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     setError('')
     e.preventDefault()
-    const supabase = await createClient();
+    const supabase = createClient();
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -37,17 +37,17 @@ export default function RegisterPage() {
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>Register</CardTitle>
-          {error && 
-          (<CardDescription className='text-destructive'>{error}</CardDescription>) }
+          {error &&
+            (<CardDescription className='text-destructive'>{error}</CardDescription>)}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
+                <Input
+                  id="email"
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -55,8 +55,8 @@ export default function RegisterPage() {
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
+                <Input
+                  id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

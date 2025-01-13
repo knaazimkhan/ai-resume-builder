@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/utils/supabase/client'
 
 export default function ResumeUploader() {
   const [file, setFile] = useState<File | null>(null)
@@ -16,6 +16,7 @@ export default function ResumeUploader() {
     e.preventDefault()
     if (!file) return
 
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
@@ -32,12 +33,12 @@ export default function ResumeUploader() {
       return
     }
 
-    const { data: { publicUrl }, error: urlError } = supabase.storage
+    const { data: { publicUrl } } = supabase.storage
       .from('resumes')
       .getPublicUrl(filePath)
 
-    if (urlError) {
-      console.error('Error getting public URL:', urlError.message)
+    if (!publicUrl) {
+      console.error('Error getting public URL')
       return
     }
 
@@ -63,9 +64,9 @@ export default function ResumeUploader() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="resume">Upload Resume (PDF)</Label>
-            <Input 
-              id="resume" 
-              type="file" 
+            <Input
+              id="resume"
+              type="file"
               accept=".pdf"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
               required

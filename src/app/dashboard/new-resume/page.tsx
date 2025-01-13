@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { createClient } from '@/utils/supabase/client'
 
-export default function DashboardPage() {
+export default function NewResumePage() {
   const [file, setFile] = useState<File | null>(null)
   const [jobUrl, setJobUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -22,10 +22,7 @@ export default function DashboardPage() {
     try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/login')
-        return
-      }
+      if (!user) return
 
       // Upload original resume
       const fileExt = file.name.split('.').pop()
@@ -57,7 +54,7 @@ export default function DashboardPage() {
 
       if (dbError) throw dbError
 
-      router.push('/dashboard/my-resumes')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -67,8 +64,10 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Create Optimized Resume</h1>
       <Card>
+        <CardHeader>
+          <CardTitle>Create Optimized Resume</CardTitle>
+        </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
