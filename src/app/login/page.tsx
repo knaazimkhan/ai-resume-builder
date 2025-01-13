@@ -5,15 +5,18 @@ import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card"
 import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setError('')
     e.preventDefault()
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -22,6 +25,7 @@ export default function LoginPage() {
 
     if (error) {
       console.error('Error logging in:', error.message)
+      setError(error.message)
     } else {
       router.push('/dashboard')
     }
@@ -32,6 +36,8 @@ export default function LoginPage() {
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>Login</CardTitle>
+          {error && 
+          (<CardDescription className='text-destructive'>Invalid login credentials</CardDescription>) }
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
