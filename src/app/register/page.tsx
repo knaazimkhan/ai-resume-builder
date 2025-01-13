@@ -37,7 +37,7 @@ export default function RegisterPage() {
         <CardHeader>
           <CardTitle>Register</CardTitle>
           {error && 
-          (<CardDescription className='text-destructive'>Invalid login credentials</CardDescription>) }
+          (<CardDescription className='text-destructive'>{error}</CardDescription>) }
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
