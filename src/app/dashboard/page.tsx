@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Upload, File, Link } from 'lucide-react'
+import { Upload, File, Link, X } from 'lucide-react'
+import { PageHeader } from '@/app/dashboard/PageHeader'
 import { createClient } from '@/utils/supabase/client'
 
 const formSchema = z.object({
@@ -40,6 +41,10 @@ export default function DashboardPage() {
     },
     maxFiles: 1,
   })
+
+  const removeFile = () => {
+    setFile(null)
+  }
 
   const onSubmit = async (data: FormData) => {
     if (!file) return
@@ -93,7 +98,10 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8 text-center">Create Optimized Resume</h1>
+      <PageHeader 
+        title="Create Optimized Resume" 
+        description="Upload your resume and provide a job link to get an AI-optimized version tailored for the position."
+      />
       <Card className="bg-white shadow-lg rounded-lg overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6">
           <CardTitle className="text-2xl">Let AI Enhance Your Resume</CardTitle>
@@ -102,16 +110,28 @@ export default function DashboardPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="resume" className="text-lg font-semibold">Upload Your Resume (PDF)</Label>
-              <div
-                {...getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-500'
-                  }`}
+              <div 
+                {...getRootProps()} 
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                  isDragActive ? 'border-green-500 bg-green-50' : file ? 'border-green-500' : 'border-gray-300 hover:border-purple-500'
+                }`}
               >
                 <input {...getInputProps()} />
                 {file ? (
                   <div className="flex items-center justify-center space-x-2">
-                    <File className="text-purple-500" />
+                    <File className="text-green-500" />
                     <span>{file.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        removeFile()
+                      }}
+                    >
+                      <X className="h-4 w-4 text-red-500" />
+                    </Button>
                   </div>
                 ) : (
                   <div>
@@ -125,9 +145,9 @@ export default function DashboardPage() {
               <Label htmlFor="jobUrl" className="text-lg font-semibold">LinkedIn Job URL</Label>
               <div className="flex items-center space-x-2">
                 <Link className="text-purple-500" size={20} />
-                <Input
-                  id="jobUrl"
-                  type="url"
+                <Input 
+                  id="jobUrl" 
+                  type="url" 
                   placeholder="https://www.linkedin.com/jobs/view/..."
                   {...register('jobUrl')}
                   className="flex-grow"
@@ -137,8 +157,8 @@ export default function DashboardPage() {
                 <p className="text-red-500 text-sm mt-1">{errors.jobUrl.message}</p>
               )}
             </div>
-            <Button
-              type="submit"
+            <Button 
+              type="submit" 
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg text-lg font-semibold transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading || !isValid || !file}
             >
