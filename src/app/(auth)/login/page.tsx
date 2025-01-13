@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card"
-import { supabase } from '@/lib/supabase'
+import { createClient } from "@/utils/supabase/client";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,16 +18,17 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     setError('')
     e.preventDefault()
-    const { error } = await supabase.auth.signUp({
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
     if (error) {
-      console.error('Error registering:', error.message)
+      console.error('Error logging in:', error.message)
       setError(error.message)
     } else {
-      router.push('/login')
+      router.push('/dashboard')
     }
   }
 
@@ -35,7 +36,7 @@ export default function RegisterPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle>Register</CardTitle>
+          <CardTitle>Login</CardTitle>
           {error && 
           (<CardDescription className='text-destructive'>{error}</CardDescription>) }
         </CardHeader>
@@ -66,8 +67,8 @@ export default function RegisterPage() {
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={() => router.push('/login')}>Login</Button>
-          <Button onClick={handleSubmit}>Register</Button>
+          <Button variant="outline" onClick={() => router.push('/register')}>Register</Button>
+          <Button onClick={handleSubmit}>Login</Button>
         </CardFooter>
       </Card>
     </div>

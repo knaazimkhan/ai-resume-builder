@@ -1,22 +1,15 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import ResumeUploader from "./ResumeUploader"
 import ResumeList from "./ResumeList"
+import { createClient } from "@/utils/supabase/server"
 
 export default async function DashboardPage() {
-  const supabase = createServerComponentClient({ cookies })
-  
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (!session) {
-    redirect('/login')
-  }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { data: resumes, error } = await supabase
     .from('resumes')
     .select('*')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user?.id)
     .order('created_at', { ascending: false })
 
   if (error) {
