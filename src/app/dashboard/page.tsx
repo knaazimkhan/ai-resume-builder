@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useDropzone } from 'react-dropzone'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Upload, File, Link } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 
 export default function DashboardPage() {
@@ -13,6 +15,18 @@ export default function DashboardPage() {
   const [jobUrl, setJobUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setFile(acceptedFiles[0])
+  }, [])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+    },
+    maxFiles: 1,
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,35 +80,54 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Create Optimized Resume</h1>
-      <Card>
-        <CardContent>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-4xl font-bold mb-8 text-center">Create Optimized Resume</h1>
+      <Card className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6">
+          <CardTitle className="text-2xl">Let AI Enhance Your Resume</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="resume">Upload Your Resume (PDF)</Label>
-              <Input 
-                id="resume" 
-                type="file" 
-                accept=".pdf"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                required
-              />
+              <Label htmlFor="resume" className="text-lg font-semibold">Upload Your Resume (PDF)</Label>
+              <div 
+                {...getRootProps()} 
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                  isDragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-500'
+                }`}
+              >
+                <input {...getInputProps()} />
+                {file ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <File className="text-purple-500" />
+                    <span>{file.name}</span>
+                  </div>
+                ) : (
+                  <div>
+                    <Upload className="mx-auto text-gray-400 mb-2" size={32} />
+                    <p className="text-gray-600">Drag & drop your resume here, or click to select file</p>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="jobUrl">LinkedIn Job URL</Label>
-              <Input 
-                id="jobUrl" 
-                type="url" 
-                placeholder="https://www.linkedin.com/jobs/view/..."
-                value={jobUrl}
-                onChange={(e) => setJobUrl(e.target.value)}
-                required
-              />
+              <Label htmlFor="jobUrl" className="text-lg font-semibold">LinkedIn Job URL</Label>
+              <div className="flex items-center space-x-2">
+                <Link className="text-purple-500" size={20} />
+                <Input 
+                  id="jobUrl" 
+                  type="url" 
+                  placeholder="https://www.linkedin.com/jobs/view/..."
+                  value={jobUrl}
+                  onChange={(e) => setJobUrl(e.target.value)}
+                  required
+                  className="flex-grow"
+                />
+              </div>
             </div>
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg text-lg font-semibold transition-transform transform hover:scale-105"
               disabled={isLoading}
             >
               {isLoading ? 'Creating...' : 'Create Optimized Resume'}
