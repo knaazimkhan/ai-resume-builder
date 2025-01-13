@@ -17,7 +17,12 @@ export default function Header() {
           <Link href="#testimonials" className="text-muted-foreground hover:text-primary">Testimonials</Link>
           <Link href="#blog" className="text-muted-foreground hover:text-primary">Blog</Link>
         </nav>
-        <Button>Get Started</Button>
+        <div className='flex gap-4 justify-center items-center'>
+          <Button variant='outline' className='text-accent hover:text-white' asChild>
+            <Link href='/register'>Sign in</Link>
+          </Button>
+          <Button asChild><Link href='/login'>Get Started</Link></Button>
+        </div>
       </div>
     </header>
   )
