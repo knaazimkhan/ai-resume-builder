@@ -3,6 +3,9 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDropzone } from 'react-dropzone'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,11 +13,21 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Upload, File, Link } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 
+const formSchema = z.object({
+  jobUrl: z.string().url({ message: "Please enter a valid URL" }),
+})
+
+type FormData = z.infer<typeof formSchema>
+
 export default function DashboardPage() {
   const [file, setFile] = useState<File | null>(null)
-  const [jobUrl, setJobUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    mode: 'onChange'
+  })
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFile(acceptedFiles[0])
@@ -28,9 +41,8 @@ export default function DashboardPage() {
     maxFiles: 1,
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!file || !jobUrl) return
+  const onSubmit = async (data: FormData) => {
+    if (!file) return
 
     setIsLoading(true)
     try {
@@ -65,7 +77,7 @@ export default function DashboardPage() {
           user_id: user.id,
           file_name: file.name,
           file_url: publicUrl,
-          job_url: jobUrl,
+          job_url: data.jobUrl,
           is_optimized: true
         })
 
@@ -87,14 +99,13 @@ export default function DashboardPage() {
           <CardTitle className="text-2xl">Let AI Enhance Your Resume</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="resume" className="text-lg font-semibold">Upload Your Resume (PDF)</Label>
-              <div 
-                {...getRootProps()} 
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                  isDragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-500'
-                }`}
+              <div
+                {...getRootProps()}
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-500'
+                  }`}
               >
                 <input {...getInputProps()} />
                 {file ? (
@@ -114,21 +125,22 @@ export default function DashboardPage() {
               <Label htmlFor="jobUrl" className="text-lg font-semibold">LinkedIn Job URL</Label>
               <div className="flex items-center space-x-2">
                 <Link className="text-purple-500" size={20} />
-                <Input 
-                  id="jobUrl" 
-                  type="url" 
+                <Input
+                  id="jobUrl"
+                  type="url"
                   placeholder="https://www.linkedin.com/jobs/view/..."
-                  value={jobUrl}
-                  onChange={(e) => setJobUrl(e.target.value)}
-                  required
+                  {...register('jobUrl')}
                   className="flex-grow"
                 />
               </div>
+              {errors.jobUrl && (
+                <p className="text-red-500 text-sm mt-1">{errors.jobUrl.message}</p>
+              )}
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg text-lg font-semibold transition-transform transform hover:scale-105"
-              disabled={isLoading}
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg text-lg font-semibold transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading || !isValid || !file}
             >
               {isLoading ? 'Creating...' : 'Create Optimized Resume'}
             </Button>
